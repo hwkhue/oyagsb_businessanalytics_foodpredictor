@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Consumption Predictor</title>
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.20.15/Babel.min.js"></script>
+  <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+  <div id="root" class="min-h-screen bg-gray-100 flex items-center justify-center"></div>
+  <script type="text/babel">
+    function FoodPredictor() {
+      const [income, setIncome] = React.useState('');
+      const [familySize, setFamilySize] = React.useState('');
+      const [result, setResult] = React.useState(null);
+      const [error, setError] = React.useState('');
+
+      const calculateFoodCost = () => {
+        const incomeNum = parseFloat(income);
+        const familySizeNum = parseInt(familySize);
+
+        if (isNaN(incomeNum) || incomeNum < 0) {
+          setError('Please enter a valid income (positive number).');
+          setResult(null);
+          return;
+        }
+        if (isNaN(familySizeNum) || familySizeNum < 1) {
+          setError('Please enter a valid family size (positive integer).');
+          setResult(null);
+          return;
+        }
+
+        // Regression model: Food $ = -1.1183 + 0.1482 * Income $ + 0.7931 * Family Size
+        const foodCost = -1.1183 + 0.1482 * incomeNum + 0.7931 * familySizeNum;
+        setResult(foodCost.toFixed(2));
+        setError('');
+      };
+
+      return (
+        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-center mb-6">Food Consumption Predictor</h1>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Income ($)</label>
+              <input
+                type="number"
+                value={income}
+                onChange={(e) => setIncome(e.target.value)}
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter income in dollars"
+                step="any"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Family Size</label>
+              <input
+                type="number"
+                value={familySize}
+                onChange={(e) => setFamilySize(e.target.value)}
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter family size"
+                min="1"
+                step="1"
+              />
+            </div>
+            <button
+              onClick={calculateFoodCost}
+              className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200"
+            >
+              Predict Food Cost
+            </button>
+            {error && (
+              <p className="text-red-500 text-center">{error}</p>
+            )}
+            {result && (
+              <p className="text-green-600 text-center text-lg font-semibold">
+                Predicted Food Cost: ${result}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<FoodPredictor />);
+  </script>
+</body>
+</html>
